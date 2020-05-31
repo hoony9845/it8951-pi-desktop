@@ -9,14 +9,11 @@ MODULECONFIG=/etc/modules
 default:
 	$(MAKE) -C $(KDIR) M=$$PWD
 
-install: install_module set_config set_modules set_layout
+install: install_module set_config set_modules set_layout rpi_overlay
 	depmod -A
 
 clean:
 	$(MAKE) -C $(KDIR) M=$$PWD clean
-
-rpi_overlay:
-	dtc -I dts -O dtb -o /boot/overlays/it8951.dtbo rpi-it8951-overlay.dts
 
 install_module:
 	$(MAKE) -C $(KDIR) M=$$PWD INSTALL_MOD_DIR=$(MODULEDIR) modules_install
@@ -29,3 +26,6 @@ set_modules:
 
 set_layout:
 	cp 990-dualmonitor.conf /usr/share/X11/xorg.conf.d/
+
+rpi_overlay:
+	dtc -I dts -O dtb -o /boot/overlays/it8951.dtbo rpi-it8951-overlay.dts
