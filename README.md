@@ -2,6 +2,8 @@
 
 IT8951 as a Raspberry Pi Desktop screen.
 
+![Screenshot](screenshot.png)
+
 Tested on the configuration below:
 - Raspberry Pi 3 Model B with Raspberry Pi OS (Kernel version: 4.19)
 - 800x600, 6inch E-Ink display HAT for Raspberry Pi (Brand: WaveShare)
@@ -43,6 +45,8 @@ Install the module by typing below:
 ```
 $ sudo make install
 ```
+
+After reboot your pi, you should see the desktop with dual screen.
 
 ### Uninstall
 
