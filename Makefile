@@ -19,10 +19,10 @@ install_module:
 	$(MAKE) -C $(KDIR) M=$$PWD INSTALL_MOD_DIR=$(MODULEDIR) modules_install
 
 set_config:
-	printf "\ndtoverlay=it8951\n" >> $(PICONFIG)
+	printf "dtoverlay=it8951\n" >> $(PICONFIG)
 
 set_modules:
-	printf "\ntinydrm\nit8951\n" >> $(MODULECONFIG)
+	printf "tinydrm\nit8951\n" >> $(MODULECONFIG)
 
 set_layout:
 	cp 990-dualmonitor.conf /usr/share/X11/xorg.conf.d/
