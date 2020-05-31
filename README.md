@@ -23,10 +23,4 @@ Raspberry Pi
 - add "fbcon=map:1 vt.color=0xf0" at the end of /boot/cmdline.txt
 - to disable cursor blinking, add a line "echo 0 > /sys/class/graphics/fbcon/cursor_blink" in /etc/rc.local
 
-Beaglebone
-   - generate overlay: sudo make bb_spi0_overlay
-   - sudo cp IT8951-00A0.dtbo /lib/firmware/
-   - edit /boot/uEnv.txt to add dtb : dtb_overlay=/lib/firmware/IT8951-00A0.dtbo
-    - add "vt.color=0xf0" at the end of cmdline= in /boot/uEnv.txt
-
 You can now reboot, the eink panel will be the screen by default
