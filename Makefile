@@ -1,3 +1,5 @@
+obj-m += it8951.o
+
 KDIR ?= /lib/modules/`uname -r`/build
 
 default:
@@ -10,4 +12,4 @@ clean:
 	$(MAKE) -C $(KDIR) M=$$PWD clean
 
 rpi_overlay:
-	dtc -I dts -O dtb -o boot/overlays/it8951.dtb rpi-overlays/it8951-overlay.dts
+	dtc -I dts -O dtb -o /boot/overlays/it8951.dtbo rpi-overlays/it8951-overlay.dts
