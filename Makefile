@@ -1,22 +1,21 @@
 obj-m += it8951.o
 
 KDIR ?= /lib/modules/`uname -r`/build
-MODULEDIR := kernel/drivers/gpu/drm/tinydrm
 
-PICONFIG=/boot/config.txt
-MODULECONFIG=/etc/modules
+PICONFIG = /boot/config.txt
+MODULECONFIG = /etc/modules
 
 default:
 	$(MAKE) -C $(KDIR) M=$$PWD
 
 install: install_module set_config set_modules set_layout rpi_overlay
-	depmod -A
 
 clean:
 	$(MAKE) -C $(KDIR) M=$$PWD clean
 
 install_module:
-	$(MAKE) -C $(KDIR) M=$$PWD INSTALL_MOD_DIR=$(MODULEDIR) modules_install
+	$(MAKE) -C $(KDIR) M=$$PWD modules_install
+	depmod -A
 
 set_config:
 	printf "dtoverlay=it8951\n" >> $(PICONFIG)
