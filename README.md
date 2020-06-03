@@ -1,32 +1,53 @@
-tinydrm kernel module for Waveshare it8951 based eink kits
+# it8951-pi-desktop
 
-Tested on raspberry pi zero w with kernel 4.19, only 6" panel is supported
+IT8951 as a Raspberry Pi Desktop screen.
 
-Setup (on raspian):
+![Screenshot](screenshot.png)
+
+Tested on the configuration below:
+- Raspberry Pi 3 Model B with Raspberry Pi OS (Kernel version: 4.19)
+- 800x600, 6inch E-Ink display HAT for Raspberry Pi (Brand: WaveShare)
+
+*Special thanks to Julien Boulnois (The author of kernel module for IT8951)*
+
+## Prerequisites
+
+### Raspberry Pi OS (32-bit) with desktop
+
+You can download Raspberry Pi OS from [the offical web site](https://www.raspberrypi.org/downloads/raspbian/).
+
+### raspberrypi-kernel-headers
+
+raspberrypi-kernel-headers are required to build the kernel module.
+
+You can use the apt command to install the headers as follow:
+
+```bash
+	$ sudo apt install raspberrypi-kernel-headers
 ```
-$ cd tinydrm_it8951
-$ make
+
+## How to use
+
+### Build
+
+Clone the repository, and build a module.
+
+```bash
+	$ git clone https://github.com/gigoh/it8951-pi-desktop.git
+	$ cd it8951-pi-desktop
+	$ make
 ```
 
-you can test it with 
-```
-$ sudo sh utils/load.sh
-```
+### Install
 
-To enable the screen at boot:
+Install the module by typing below:
 
-Raspberry Pi
-- copy it8951.ko in your /lib/modules directory (eg /lib/modules/4.19.66+/kernel/drivers/gpu/drm/tinydrm/)
-- generate overlay : sudo make rpi_overlay
-- add modules tinydrm and it8951 in /etc/modules
-- add a line "dtoverlay=it8951" in /boot/config.txt
-- add "fbcon=map:1 vt.color=0xf0" at the end of /boot/cmdline.txt
-- to disable cursor blinking, add a line "echo 0 > /sys/class/graphics/fbcon/cursor_blink" in /etc/rc.local
+```bash
+	$ sudo make install
+``` 
 
-Beaglebone
-   - generate overlay: sudo make bb_spi0_overlay
-   - sudo cp IT8951-00A0.dtbo /lib/firmware/
-   - edit /boot/uEnv.txt to add dtb : dtb_overlay=/lib/firmware/IT8951-00A0.dtbo
-    - add "vt.color=0xf0" at the end of cmdline= in /boot/uEnv.txt
+After reboot your pi, you will see the desktop with dual screen.
 
-You can now reboot, the eink panel will be the screen by default
+### Uninstall
+
+Work in progress..
