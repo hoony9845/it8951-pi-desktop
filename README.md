@@ -23,7 +23,7 @@ raspberrypi-kernel-headers are required to build the kernel module.
 You can use the apt command to install the headers as follow:
 
 ```bash
-$ sudo apt install raspberrypi-kernel-headers
+	$ sudo apt install raspberrypi-kernel-headers
 ```
 
 ## How to use
@@ -33,20 +33,20 @@ $ sudo apt install raspberrypi-kernel-headers
 Clone the repository, and build a module.
 
 ```bash
-$ git clone https://github.com/gigoh/it8951-pi-desktop.git
-$ cd it8951-pi-desktop
-$ make
+	$ git clone https://github.com/gigoh/it8951-pi-desktop.git
+	$ cd it8951-pi-desktop
+	$ make
 ```
 
 ### Install
 
 Install the module by typing below:
 
-```
-$ sudo make install
-```
+```bash
+	$ sudo make install
+``` 
 
-After reboot your pi, you should see the desktop with dual screen.
+After reboot your pi, you will see the desktop with dual screen.
 
 ### Uninstall
 
