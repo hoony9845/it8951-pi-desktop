@@ -11,7 +11,7 @@ default:
 
 install: install_module set_config set_modules set_layout rpi_overlay
 
-uninstall: unset_config unset_modules unset_layout
+uninstall: unset_config unset_modules unset_layout remove_artifacts
 
 clean:
 	$(MAKE) -C $(KDIR) M=$$PWD clean
@@ -41,3 +41,7 @@ unset_layout:
 
 rpi_overlay:
 	dtc -I dts -O dtb -o /boot/overlays/it8951.dtbo rpi-it8951-overlay.dts
+
+remove_artifacts:
+    rm /boot/overlays/it8951.dtbo
+	rm /lib/modules/`uname -r`/extra/it8951.ko
