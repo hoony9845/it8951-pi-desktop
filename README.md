@@ -50,4 +50,10 @@ After reboot your pi, you will see the desktop with dual screen.
 
 ### Uninstall
 
-Work in progress..
+Uninstall the module by typing below:
+
+```bash
+	$ sudo make uninstall
+```
+
+The E-Ink (secondary) display should be disabled after reboot.
