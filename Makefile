@@ -27,10 +27,9 @@ unset_config:
 	sed $(PICONFIG) -i -e "/^dtoverlay=it8951/d"
 
 set_modules:
-	printf "tinydrm\nit8951\n" >> $(MODULECONFIG)
+	printf "it8951\n" >> $(MODULECONFIG)
 
 unset_modules:
-	sed $(MODULECONFIG) -i -e "/^tinydrm/d"
 	sed $(MODULECONFIG) -i -e "/^it8951/d"
 
 set_layout:
@@ -43,5 +42,5 @@ rpi_overlay:
 	dtc -I dts -O dtb -o /boot/overlays/it8951.dtbo rpi-it8951-overlay.dts
 
 remove_artifacts:
-    rm /boot/overlays/it8951.dtbo
+	rm /boot/overlays/it8951.dtbo
 	rm /lib/modules/`uname -r`/extra/it8951.ko
