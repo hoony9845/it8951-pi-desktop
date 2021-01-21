@@ -43,5 +43,5 @@ rpi_overlay:
 	dtc -I dts -O dtb -o /boot/overlays/it8951.dtbo rpi-it8951-overlay.dts
 
 remove_artifacts:
-    rm /boot/overlays/it8951.dtbo
+	rm /boot/overlays/it8951.dtbo
 	rm /lib/modules/`uname -r`/extra/it8951.ko
