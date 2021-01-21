@@ -27,10 +27,9 @@ unset_config:
 	sed $(PICONFIG) -i -e "/^dtoverlay=it8951/d"
 
 set_modules:
-	printf "tinydrm\nit8951\n" >> $(MODULECONFIG)
+	printf "it8951\n" >> $(MODULECONFIG)
 
 unset_modules:
-	sed $(MODULECONFIG) -i -e "/^tinydrm/d"
 	sed $(MODULECONFIG) -i -e "/^it8951/d"
 
 set_layout:
