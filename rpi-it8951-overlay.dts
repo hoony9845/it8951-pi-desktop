@@ -49,9 +49,12 @@
 				reg = <0>;
 				spi-max-frequency = <24000000>;
 
-				rotation = <0>;
+				rotation = <90>;
 				reset-gpios = <&gpio 17 0>;
 				hrdy-gpios = <&gpio 24 0>;
+
+				xres = <1600>;
+				yres = <1200>;
 			};
 		};
 	};
