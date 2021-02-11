@@ -7,6 +7,7 @@ IT8951 as a Raspberry Pi Desktop screen.
 Tested on the configuration below:
 - Raspberry Pi 3 Model B with Raspberry Pi OS with desktop (Kernel version: 5.4.83-v7+)
 - 800x600, 6inch E-Ink display HAT for Raspberry Pi (Brand: WaveShare)
+- 1600x1200, 13.3inch E-Ink display HAT for Raspberry Pi (Brand: WaveShare)
 
 *Special thanks to Julien Boulnois (The author of kernel module for IT8951)*
 
