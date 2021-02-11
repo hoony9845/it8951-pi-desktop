@@ -596,6 +596,8 @@ struct it8951_epd {
 
 	uint8_t *buf;
 	struct drm_gem_cma_object *bo;
+
+	uint32_t rotation;
 };
 
 static void it8951_wait_for_ready(struct it8951_epd *epd, int us)
@@ -897,13 +899,47 @@ static void it8951_packed_pixel_write_area(struct it8951_epd *epd, struct it8951
 	it8951_load_img_end(epd);
 }
 
-static void it8951_display_area(struct it8951_epd *epd, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t dpy_mode)
+static void it8951_display_area(struct it8951_epd *epd, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t dpy_mode, uint16_t rotate)
 {
+	uint16_t cal_x, cal_y, cal_w, cal_h;
+	uint16_t panel_w, panel_h;
+
+	switch(rotate) {
+	case IT8951_ROTATE_0:
+		cal_x = x;
+		cal_y = y;
+		cal_w = w;
+		cal_h = h;
+		break;
+	case IT8951_ROTATE_90:
+		panel_h = epd->dev_info.panel_h;
+		cal_x = y;
+		cal_y = panel_h - (x + w);
+		cal_w = h;
+		cal_h = w;
+		break;
+	case IT8951_ROTATE_180:
+		panel_w = epd->dev_info.panel_w;
+		panel_h = epd->dev_info.panel_h;
+		cal_x = panel_w - (x + w);
+		cal_y = panel_h - (y + h);
+		cal_w = w;
+		cal_h = h;
+		break;
+	case IT8951_ROTATE_270:
+		panel_w = epd->dev_info.panel_w;
+		cal_x = panel_w - (y + h);
+		cal_y = x;
+		cal_w = h;
+		cal_h = w;
+		break;
+	}
+
 	it8951_write_cmd_code(epd, USDEF_I80_CMD_DPY_AREA);
-	it8951_write_data(epd, x);
-	it8951_write_data(epd, y);
-	it8951_write_data(epd, w);
-	it8951_write_data(epd, h);
+	it8951_write_data(epd, cal_x);
+	it8951_write_data(epd, cal_y);
+	it8951_write_data(epd, cal_w);
+	it8951_write_data(epd, cal_h);
 	it8951_write_data(epd, dpy_mode);
 
 
@@ -1127,6 +1163,17 @@ static int it8951_fb_dirty(struct drm_framebuffer *fb,
 
 	struct it8951_load_img_info load_img_info;
 
+	uint16_t v_panel_w;
+	uint16_t v_panel_h;
+
+	if (epd->rotation == 90 || epd->rotation == 270) {
+		v_panel_w = epd->dev_info.panel_h;
+		v_panel_h = epd->dev_info.panel_w;
+	} else {
+		v_panel_w = epd->dev_info.panel_w;
+		v_panel_h = epd->dev_info.panel_h;
+	}
+
 	if(epd->dev_info.panel_w == 0 || epd->dev_info.panel_h == 0) {
 		//printk(KERN_INFO "it8951: initialization failed\n");
 		return 0;
@@ -1148,15 +1195,15 @@ static int it8951_fb_dirty(struct drm_framebuffer *fb,
 	// full refresh for ghosting
 	if (epd->update_mode == -1 && epd->last_full_refresh == 32) {
 		clip.x1 = 0;
-		clip.x2 = epd->dev_info.panel_w;
+		clip.x2 = v_panel_w;
 		clip.y1 = 0;
-		clip.y2 = epd->dev_info.panel_h;
+		clip.y2 = v_panel_h;
 
 		full_screen = true;
 		full_refresh = true;
 	} else {
 		full_screen = tinydrm_merge_clips(&clip, clips, num_clips, flags,
-		                                  epd->dev_info.panel_w, epd->dev_info.panel_h);
+		                                  v_panel_w, v_panel_h);
 		full_refresh = false;
 
 		// CLIP_PADDING bytes padding
@@ -1172,11 +1219,11 @@ static int it8951_fb_dirty(struct drm_framebuffer *fb,
 		if (clip.y2 % CLIP_PADDING != 0)
 			clip.y2 += CLIP_PADDING - (clip.y2 % CLIP_PADDING);
 
-		if (clip.x2 > epd->dev_info.panel_w)
-			clip.x2 = epd->dev_info.panel_w;
+		if (clip.x2 > v_panel_w)
+			clip.x2 = v_panel_w;
 
-		if (clip.y2 > epd->dev_info.panel_h)
-			clip.y2 = epd->dev_info.panel_h;
+		if (clip.y2 > v_panel_h)
+			clip.y2 = v_panel_h;
 	}
 
 	clip_w = clip.x2 - clip.x1;
@@ -1184,7 +1231,7 @@ static int it8951_fb_dirty(struct drm_framebuffer *fb,
 
 #ifdef IT8951_DEBUG
 	printk(KERN_INFO "it8951: dirty panel:%dx%d flags:%d color:%d pitch:%d clips:%d, full_screen:%d, x1:%d, y1:%d, x2:%d, y2:%d\n",
-	       epd->dev_info.panel_w, epd->dev_info.panel_h, flags, color, fb->pitches[0], num_clips, full_screen, clip.x1, clip.y1, clip.x2, clip.y2);
+	       v_panel_w, v_panel_h, flags, color, fb->pitches[0], num_clips, full_screen, clip.x1, clip.y1, clip.x2, clip.y2);
 #endif
 
 	// create tmp buffer
@@ -1192,7 +1239,7 @@ static int it8951_fb_dirty(struct drm_framebuffer *fb,
 
 	// copy previous buffer
 	if (!full_refresh && epd->update_mode == -1)
-		it8951_memcpy_gray4(tmp_prev_bo->vaddr, epd->buf, epd->dev_info.panel_w, &clip);
+		it8951_memcpy_gray4(tmp_prev_bo->vaddr, epd->buf, v_panel_w, &clip);
 
 	if (import_attach) {
 		ret = dma_buf_begin_cpu_access(import_attach->dmabuf,
@@ -1215,7 +1262,7 @@ static int it8951_fb_dirty(struct drm_framebuffer *fb,
 	} else {
 		// create tmp buffer
 		tmp_bo = drm_gem_cma_create(fb->dev, clip_w * clip_h / 2);
-		it8951_memcpy_gray4(tmp_bo->vaddr, epd->buf, epd->dev_info.panel_w, &clip);
+		it8951_memcpy_gray4(tmp_bo->vaddr, epd->buf, v_panel_w, &clip);
 		buf = tmp_bo->vaddr;
 	}
 
@@ -1236,7 +1283,7 @@ static int it8951_fb_dirty(struct drm_framebuffer *fb,
 	load_img_info.start_fb_addr    = (uint32_t)buf;
 	load_img_info.endian_type     = IT8951_LDIMG_L_ENDIAN;
 	load_img_info.pixel_format =    IT8951_4BPP;
-	load_img_info.rotate         = IT8951_ROTATE_0;
+	load_img_info.rotate         = epd->rotation / 90;
 	load_img_info.img_buf_base_addr = epd->img_buf_addr;
 
 	if (wf != -1) {
@@ -1259,7 +1306,7 @@ static int it8951_fb_dirty(struct drm_framebuffer *fb,
 			it8951_packed_pixel_write_area(epd, &load_img_info, &area_img_info);
 		}
 
-		it8951_display_area(epd, clip.x1, clip.y1, clip_w, clip_h, wf);
+		it8951_display_area(epd, clip.x1, clip.y1, clip_w, clip_h, wf, load_img_info.rotate);
 
 		if (epd->running)
 			it8951_standby(epd);
@@ -1349,7 +1396,7 @@ static const uint32_t it8951_formats[] = {
 	DRM_FORMAT_XRGB8888,
 };
 
-static const struct drm_display_mode it8951_mode = {
+static struct drm_display_mode it8951_mode = {
 	TINYDRM_MODE(800, 600, 0, 0),
 };
 
@@ -1386,6 +1433,8 @@ static int it8951_probe(struct spi_device *spi)
 	struct fb_info *info;
 
 	int ret;
+	unsigned int rotation;
+	unsigned int xres, yres;
 
 	match = of_match_device(it8951_of_match, dev);
 
@@ -1429,14 +1478,39 @@ static int it8951_probe(struct spi_device *spi)
 	if (ret)
 		return ret;
 
+	ret = device_property_read_u32(dev, "rotation", &rotation);
+	if (ret)
+		rotation = 0;
+
+	printk(KERN_INFO "it8951: rotation:%d\n", rotation);
+
+	epd->rotation = rotation;
+
+	ret = device_property_read_u32(dev, "xres", &xres);
+	if (!ret) {
+		ret = device_property_read_u32(dev, "yres", &yres);
+		if (!ret) {
+			it8951_mode.hdisplay = xres;
+			it8951_mode.hsync_start = xres;
+			it8951_mode.hsync_end = xres;
+			it8951_mode.htotal = xres;
+			it8951_mode.vdisplay = yres;
+			it8951_mode.vsync_start = yres;
+			it8951_mode.vsync_end = yres;
+			it8951_mode.vtotal =yres;
+		}
+	}
+
 	mode = &it8951_mode;
+
+	printk(KERN_INFO "it8951: xres:%d yres:%d\n", it8951_mode.hdisplay, it8951_mode.vdisplay);
 
 	tdev->fb_dirty = it8951_fb_dirty;
 
 	ret = tinydrm_display_pipe_init(tdev, &it8951_pipe_funcs,
 	                                DRM_MODE_CONNECTOR_VIRTUAL,
 	                                it8951_formats,
-	                                ARRAY_SIZE(it8951_formats), mode, 0);
+	                                ARRAY_SIZE(it8951_formats), mode, rotation);
 	if (ret)
 		return ret;
 
