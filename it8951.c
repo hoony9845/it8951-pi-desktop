@@ -211,9 +211,10 @@ static int tinydrm_register(struct tinydrm_device *tdev)
 	if (ret)
 		return ret;
 
-	ret = drm_fbdev_generic_setup(drm, 0);
-	if (ret)
-		DRM_ERROR("Failed to initialize fbdev: %d\n", ret);
+//	ret = drm_fbdev_generic_setup(drm, 0);
+	drm_fbdev_generic_setup(drm, 0);
+//	if (ret)
+//		DRM_ERROR("Failed to initialize fbdev: %d\n", ret);
 
 	return 0;
 }
@@ -1122,7 +1123,8 @@ static struct drm_driver it8951_driver = {
 	.driver_features	= DRIVER_GEM | DRIVER_MODESET |
 	DRIVER_ATOMIC,
 	.fops			= &it8951_fops,
-	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+//	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+	DRM_GEM_CMA_DRIVER_OPS_VMAP,
 	.name			= "it8951",
 	.desc			= "it8951 e-ink",
 	.date			= "20190913",
